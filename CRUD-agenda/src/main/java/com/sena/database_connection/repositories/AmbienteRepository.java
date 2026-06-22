@@ -9,6 +9,6 @@ import com.sena.database_connection.model.entities.Ambiente;
 
 @Repository
 public interface AmbienteRepository extends JpaRepository<Ambiente, Long> {
-    // Para listar solo los ambientes que estén activos en el SENA
+
     List<Ambiente> findByActivoTrue();
 }
