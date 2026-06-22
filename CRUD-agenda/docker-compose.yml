@@ -1,0 +1,15 @@
+services:
+  db_136:
+    image: postgres:18-alpine
+    container_name: db_136
+    volumes:
+      - jpa_136:/var/lib/postgresql/18/docker
+    environment:
+      POSTGRES_USER: ejemplo_136
+      POSTGRES_PASSWORD: ejemplo_136
+      POSTGRES_DB: ejemplo_136
+    ports:
+      - "5432:5432"
+
+volumes:
+  jpa_136:
