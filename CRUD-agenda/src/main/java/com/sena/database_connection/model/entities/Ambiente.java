@@ -42,5 +42,5 @@ public class Ambiente {
     private Integer capacidad;
 
     @Column(nullable = false)
-    private boolean activo = true;
+    private Boolean activo = true;
 }

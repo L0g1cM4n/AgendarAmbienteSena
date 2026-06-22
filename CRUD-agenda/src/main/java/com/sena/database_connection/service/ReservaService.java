@@ -46,7 +46,7 @@ public class ReservaService {
         Ambiente ambiente = ambienteRepository.findById(reserva.getAmbiente().getId())
                 .orElseThrow(() -> new NegocioException("El ambiente seleccionado no existe en el sistema", 404));
 
-        if (!ambiente.isActivo()) {
+        if (!ambiente.getActivo()) {
             throw new NegocioException("El ambiente seleccionado no está activo", 400);
         }
 
