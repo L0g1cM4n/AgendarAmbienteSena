@@ -9,12 +9,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sena.database_connection.model.entities.Reserva;
+import com.sena.database_connection.model.entities.Usuario;
 import com.sena.database_connection.model.enums.EstadoReserva;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
-    
+    // Busca reservas activas del mismo ambiente que se solapen con el nuevo horario
     @Query("SELECT r FROM Reserva r WHERE r.ambiente.id = :ambienteId " +
         "AND r.estado = 'ACTIVA' " +
         "AND (:inicio < r.fechaHoraFin AND :fin > r.fechaHoraInicio)")
@@ -22,6 +23,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
                                 @Param("inicio") LocalDateTime inicio,
                                 @Param("fin") LocalDateTime fin);
 
-  
-    List<Reserva> findByNombreInstructorAndEstado(String nombreInstructor, EstadoReserva estado);
+    // Busca reservas activas de un instructor (ahora por entidad Usuario)
+    List<Reserva> findByInstructorAndEstado(Usuario instructor, EstadoReserva estado);
 }

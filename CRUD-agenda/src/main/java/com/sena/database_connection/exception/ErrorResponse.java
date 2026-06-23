@@ -2,30 +2,29 @@ package com.sena.database_connection.exception;
 
 import java.time.LocalDateTime;
 
+// Esta clase define el formato JSON que se devuelve cuando hay un error
+// En vez de devolver solo un String, devuelve un objeto con mas informacion
 public class ErrorResponse {
-    private int codigo;
-    private String error;
+
     private String mensaje;
+    private int status;
     private LocalDateTime timestamp;
 
-    // Constructor Completo
-    public ErrorResponse(int codigo, String error, String mensaje, LocalDateTime timestamp) {
-        this.codigo = codigo;
-        this.error = error;
+    public ErrorResponse(String mensaje, int status) {
         this.mensaje = mensaje;
-        this.timestamp = timestamp;
+        this.status = status;
+        this.timestamp = LocalDateTime.now();
     }
 
-    // --- GETTERS Y SETTERS MANUALES ---
-    public int getCodigo() { return codigo; }
-    public void setCodigo(int codigo) { this.codigo = codigo; }
+    public String getMensaje() {
+        return mensaje;
+    }
 
-    public String getError() { return error; }
-    public void setError(String error) { this.error = error; }
+    public int getStatus() {
+        return status;
+    }
 
-    public String getMessage() { return mensaje; } // Cambiado a getMessage para Spring
-    public void setMensaje(String mensaje) { this.mensaje = mensaje; }
-
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

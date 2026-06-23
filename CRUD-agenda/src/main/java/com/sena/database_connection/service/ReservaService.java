@@ -6,56 +6,56 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sena.database_connection.exception.NegocioException;
 import com.sena.database_connection.model.entities.Ambiente;
 import com.sena.database_connection.model.entities.Reserva;
+import com.sena.database_connection.model.entities.Usuario;
 import com.sena.database_connection.model.enums.EstadoReserva;
-import com.sena.database_connection.repositories.AmbienteRepository; // IMPORTANTE
 import com.sena.database_connection.repositories.ReservaRepository;
+import com.sena.database_connection.repositories.UsuarioRepository;
 
 @Service
 public class ReservaService {
 
-    private final ReservaRepository reservaRepository;
-    private final AmbienteRepository ambienteRepository; // Inyección añadida
+    @Autowired
+    private ReservaRepository reservaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     private static final LocalTime HORA_MINIMA = LocalTime.of(6, 0);
     private static final LocalTime HORA_MAXIMA = LocalTime.of(22, 0);
 
-    // Constructor actualizado con ambos repositorios
-    ReservaService(ReservaRepository reservaRepository, AmbienteRepository ambienteRepository) {
-        this.reservaRepository = reservaRepository;
-        this.ambienteRepository = ambienteRepository;
-    }
-
     public Reserva crearReserva(Reserva reserva) {
+
         LocalDateTime inicio = reserva.getFechaHoraInicio();
         LocalDateTime fin = reserva.getFechaHoraFin();
 
+        // 1. Validar que la fecha de inicio no este en el pasado
         if (inicio.isBefore(LocalDateTime.now())) {
             throw new NegocioException("La fecha de inicio no puede estar en el pasado", 400);
         }
 
-        if (reserva.getAmbiente() == null || reserva.getAmbiente().getId() == null) {
-            throw new NegocioException("Debe seleccionar un ambiente válido para la reserva", 400);
+        // 2. Validar que el ambiente este activo
+        Ambiente ambiente = reserva.getAmbiente();
+        if (ambiente == null) {
+            throw new NegocioException("Debe seleccionar un ambiente para la reserva", 400);
+        }
+        if (ambiente.getActivo() == false) {
+            throw new NegocioException("El ambiente seleccionado no esta activo", 400);
         }
 
-        // 🔥 SOLUCIÓN: Traer el ambiente real y completo desde la Base de Datos
-        Ambiente ambiente = ambienteRepository.findById(reserva.getAmbiente().getId())
-                .orElseThrow(() -> new NegocioException("El ambiente seleccionado no existe en el sistema", 404));
-
-        if (ambiente.getActivo() == null || !ambiente.getActivo()) {
-            throw new NegocioException("El ambiente seleccionado no está activo", 400);
-        }
-
+        // 3. Validar que el numero de aprendices no supere la capacidad del ambiente
         if (reserva.getNumeroAprendices() > ambiente.getCapacidad()) {
-            throw new NegocioException("El número de aprendices supera la capacidad del ambiente (" + ambiente.getCapacidad() + ")", 400);
+            throw new NegocioException("El numero de aprendices supera la capacidad del ambiente", 400);
         }
 
-        if (!inicio.toLocalDate().isEqual(fin.toLocalDate())) {
-            throw new NegocioException("La reserva debe iniciar y terminar el mismo día", 400);
+        // 4. Validar que la reserva sea el mismo dia y dentro del horario permitido
+        if (inicio.toLocalDate().isEqual(fin.toLocalDate()) == false) {
+            throw new NegocioException("La reserva debe iniciar y terminar el mismo dia", 400);
         }
 
         LocalTime horaInicio = inicio.toLocalTime();
@@ -65,7 +65,7 @@ public class ReservaService {
             throw new NegocioException("La reserva no puede iniciar antes de las 06:00", 400);
         }
         if (horaFin.isAfter(HORA_MAXIMA)) {
-            throw new NegocioException("La reserva no puede terminar después de las 22:00", 400);
+            throw new NegocioException("La reserva no puede terminar despues de las 22:00", 400);
         }
 
         long minutosDuracion = Duration.between(inicio, fin).toMinutes();
@@ -74,62 +74,83 @@ public class ReservaService {
             throw new NegocioException("La reserva debe durar al menos 1 hora", 400);
         }
         if (minutosDuracion > 240) {
-            throw new NegocioException("La reserva no puede durar más de 4 horas", 400);
+            throw new NegocioException("La reserva no puede durar mas de 4 horas", 400);
         }
 
-        LocalDate diaReserva = inicio.toLocalDate();
-        List<Reserva> reservasInstructor = reservaRepository.findByNombreInstructorAndEstado(
-                reserva.getNombreInstructor(), EstadoReserva.ACTIVA);
+        // NUEVO: Validar que el instructor exista en la base de datos
+        Usuario instructor = reserva.getInstructor();
+        if (instructor == null || instructor.getId() == null) {
+            throw new NegocioException("Debe seleccionar un instructor para la reserva", 400);
+        }
 
-        long contadorDia = reservasInstructor.stream()
-                .filter(r -> r.getFechaHoraInicio().toLocalDate().isEqual(diaReserva))
-                .count();
+        Usuario instructorReal = usuarioRepository.findById(instructor.getId()).orElse(null);
+        if (instructorReal == null) {
+            throw new NegocioException("El instructor no existe en el sistema", 404);
+        }
+
+        // NUEVO: Validar que el instructor este activo
+        if (instructorReal.isActivo() == false) {
+            throw new NegocioException("El instructor no esta activo en el sistema", 400);
+        }
+
+        // 5. Validar que el instructor no tenga mas de 3 reservas activas ese mismo dia
+        LocalDate diaReserva = inicio.toLocalDate();
+        List<Reserva> reservasInstructor = reservaRepository.findByInstructorAndEstado(
+                instructorReal, EstadoReserva.ACTIVA);
+
+        int contadorDia = 0;
+        for (int i = 0; i < reservasInstructor.size(); i++) {
+            Reserva r = reservasInstructor.get(i);
+            if (r.getFechaHoraInicio().toLocalDate().isEqual(diaReserva)) {
+                contadorDia = contadorDia + 1;
+            }
+        }
 
         if (contadorDia >= 3) {
-            throw new NegocioException("El instructor ya tiene 3 reservas activas el día " + diaReserva, 400);
+            throw new NegocioException("El instructor ya tiene 3 reservas activas el dia " + diaReserva, 400);
         }
 
+        // 6. Validar que no se solape con otra reserva activa del mismo ambiente
         List<Reserva> solapadas = reservaRepository.findSolapadas(ambiente.getId(), inicio, fin);
 
-        if (!solapadas.isEmpty()) {
+        if (solapadas.size() > 0) {
             throw new NegocioException("El ambiente ya tiene una reserva activa en ese horario", 409);
         }
 
-        reserva.setAmbiente(ambiente); // Vinculamos el ambiente mapeado completo
+        // Asignar el instructor real y guardar la reserva
+        reserva.setInstructor(instructorReal);
         reserva.setEstado(EstadoReserva.ACTIVA);
-        return reservaRepository.save(reserva);
+        Reserva reservaGuardada = reservaRepository.save(reserva);
+
+        return reservaGuardada;
     }
 
     public Reserva cancelarReserva(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new NegocioException("No se encontró una reserva con el id " + id, 404));
+
+        Reserva reserva = reservaRepository.findById(id).orElse(null);
+
+        if (reserva == null) {
+            throw new NegocioException("No se encontro una reserva con id " + id, 404);
+        }
 
         if (reserva.getEstado() == EstadoReserva.CANCELADA) {
-            throw new NegocioException("La reserva ya está cancelada", 400);
+            throw new NegocioException("La reserva ya esta cancelada", 400);
         }
 
         LocalDateTime ahora = LocalDateTime.now();
         if (ahora.isAfter(reserva.getFechaHoraInicio())) {
-            throw new NegocioException("No se puede cancelar una reserva que ya inició", 400);
+            throw new NegocioException("No se puede cancelar una reserva que ya inicio", 400);
         }
 
         long minutosFaltantes = Duration.between(ahora, reserva.getFechaHoraInicio()).toMinutes();
 
         if (minutosFaltantes < 120) {
-            throw new NegocioException("Solo se puede cancelar con al menos 2 horas de anticipación", 400);
+            throw new NegocioException("Solo se puede cancelar con al menos 2 horas de anticipacion", 400);
         }
 
         reserva.setEstado(EstadoReserva.CANCELADA);
-        return reservaRepository.save(reserva);
-    }
+        Reserva reservaCancelada = reservaRepository.save(reserva);
 
-    // Obtener todo el historial de reservas
-    public List<Reserva> obtenerTodas() {
-        return reservaRepository.findAll();
-    }
-
-    // Buscar reservas activas de un instructor (usando el método que ya tienes en tu repo)
-    public List<Reserva> obtenerPorInstructor(String nombre) {
-        return reservaRepository.findByNombreInstructorAndEstado(nombre, EstadoReserva.ACTIVA);
+        return reservaCancelada;
     }
 }
