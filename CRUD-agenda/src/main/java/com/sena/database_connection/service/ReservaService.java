@@ -122,4 +122,14 @@ public class ReservaService {
         reserva.setEstado(EstadoReserva.CANCELADA);
         return reservaRepository.save(reserva);
     }
+
+    // Obtener todo el historial de reservas
+    public List<Reserva> obtenerTodas() {
+        return reservaRepository.findAll();
+    }
+
+    // Buscar reservas activas de un instructor (usando el método que ya tienes en tu repo)
+    public List<Reserva> obtenerPorInstructor(String nombre) {
+        return reservaRepository.findByNombreInstructorAndEstado(nombre, EstadoReserva.ACTIVA);
+    }
 }
