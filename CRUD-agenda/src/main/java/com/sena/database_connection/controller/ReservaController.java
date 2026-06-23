@@ -1,5 +1,7 @@
 package com.sena.database_connection.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sena.database_connection.exception.NegocioException;
 import com.sena.database_connection.model.entities.Reserva;
 import com.sena.database_connection.service.ReservaService;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -44,5 +46,24 @@ public class ReservaController {
     @GetMapping("/instructor/{nombre}")
     public ResponseEntity<List<Reserva>> listarPorInstructor(@PathVariable String nombre) {
         return ResponseEntity.ok(reservaService.obtenerPorInstructor(nombre));
+    }
+
+    // 🔥 Capturador de emergencia local
+    @org.springframework.web.bind.annotation.ExceptionHandler(NegocioException.class)
+    public ResponseEntity<com.sena.database_connection.exception.ErrorResponse> manejarNegocioExceptionLocal(NegocioException ex) {
+        
+        com.sena.database_connection.exception.ErrorResponse error = new com.sena.database_connection.exception.ErrorResponse(
+            ex.getStatus(),
+            "Error de Regla de Negocio (Local)",
+            ex.getMessage(),
+            java.time.LocalDateTime.now()
+        );
+        
+        org.springframework.http.HttpStatus statusHttp = org.springframework.http.HttpStatus.resolve(ex.getStatus());
+        if (statusHttp == null) {
+            statusHttp = org.springframework.http.HttpStatus.BAD_REQUEST;
+        }
+        
+        return new ResponseEntity<>(error, statusHttp);
     }
 }
