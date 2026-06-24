@@ -1,12 +1,11 @@
 package com.sena.database_connection.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// Esta clase configura la documentacion automatica de la API
-// Una vez levantado el servidor se puede ver en: http://localhost:8080/swagger-ui.html
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+
 @Configuration
 public class SwaggerConfig {
 

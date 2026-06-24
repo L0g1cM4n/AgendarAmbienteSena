@@ -21,7 +21,6 @@ public class UsuarioService {
         return usuarios;
     }
 
-    // Buscar usuario por id
     public Usuario buscarPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
         if (usuario == null) {
@@ -30,29 +29,24 @@ public class UsuarioService {
         return usuario;
     }
 
-    // Crear un nuevo usuario
     public Usuario crearUsuario(Usuario usuario) {
 
-        // Validar que el documento no este en uso
         Usuario existeDocumento = usuarioRepository.findByDocumento(usuario.getDocumento());
         if (existeDocumento != null) {
             throw new NegocioException("Ya existe un usuario con el documento " + usuario.getDocumento(), 400);
         }
 
-        // Validar que el correo no este en uso
         Usuario existeCorreo = usuarioRepository.findByCorreo(usuario.getCorreo());
         if (existeCorreo != null) {
             throw new NegocioException("Ya existe un usuario con el correo " + usuario.getCorreo(), 400);
         }
 
-        // El usuario se crea activo por defecto
         usuario.setActivo(true);
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         return usuarioGuardado;
     }
 
-    // Actualizar un usuario existente
     public Usuario actualizarUsuario(Long id, Usuario datosNuevos) {
 
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
@@ -68,7 +62,6 @@ public class UsuarioService {
         return usuarioActualizado;
     }
 
-    // Desactivar un usuario (no se elimina fisicamente)
     public Usuario desactivarUsuario(Long id) {
 
         Usuario usuario = usuarioRepository.findById(id).orElse(null);

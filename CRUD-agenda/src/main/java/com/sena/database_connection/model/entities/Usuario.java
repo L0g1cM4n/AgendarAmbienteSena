@@ -27,7 +27,6 @@ public class Usuario {
     @Column(nullable = false)
     private Boolean activo;
 
-    // Constructor vacio requerido por JPA
     public Usuario() {
     }
 

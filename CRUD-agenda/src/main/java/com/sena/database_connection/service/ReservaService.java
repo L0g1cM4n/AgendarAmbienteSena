@@ -38,31 +38,25 @@ public class ReservaService {
         LocalDateTime inicio = reserva.getFechaHoraInicio();
         LocalDateTime fin = reserva.getFechaHoraFin();
 
-        // 1. Validar que la fecha de inicio no este en el pasado
         if (inicio.isBefore(LocalDateTime.now())) {
             throw new NegocioException("La fecha de inicio no puede estar en el pasado", 400);
         }
 
-        // 2. Validar que se haya seleccionado un ambiente en la petición
         if (reserva.getAmbiente() == null || reserva.getAmbiente().getId() == null) {
             throw new NegocioException("Debe seleccionar un ambiente para la reserva", 400);
         }
 
-        // 🔥 MODIFICACIÓN PRINCIPAL: Traer el ambiente real y completo desde la Base de Datos
         Ambiente ambienteReal = ambienteRepository.findById(reserva.getAmbiente().getId())
                 .orElseThrow(() -> new NegocioException("El ambiente seleccionado no existe en el sistema", 404));
 
-        // Validar si el ambiente está activo usando el objeto real de la BD
         if (ambienteReal.getActivo() == false) {
             throw new NegocioException("El ambiente seleccionado no esta activo", 400);
         }
 
-        // 3. Validar capacidad real de la BD vs aprendices que quieren entrar
         if (reserva.getNumeroAprendices() > ambienteReal.getCapacidad()) {
             throw new NegocioException("El numero de aprendices supera la capacidad del ambiente (" + ambienteReal.getCapacidad() + ")", 400);
         }
 
-        // 4. Validar que la reserva sea el mismo dia y dentro del horario permitido
         if (inicio.toLocalDate().isEqual(fin.toLocalDate()) == false) {
             throw new NegocioException("La reserva debe iniciar y terminar el mismo dia", 400);
         }
@@ -86,7 +80,6 @@ public class ReservaService {
             throw new NegocioException("La reserva no puede durar mas de 4 horas", 400);
         }
 
-        // Validar que el instructor exista en la base de datos
         Usuario instructor = reserva.getInstructor();
         if (instructor == null || instructor.getId() == null) {
             throw new NegocioException("Debe seleccionar un instructor para la reserva", 400);
@@ -97,12 +90,10 @@ public class ReservaService {
             throw new NegocioException("El instructor no existe en el sistema", 404);
         }
 
-        // Validar que el instructor este activo
         if (instructorReal.isActivo() == false) {
             throw new NegocioException("El instructor no esta activo en el sistema", 400);
         }
 
-        // 5. Validar que el instructor no tenga mas de 3 reservas activas ese mismo dia
         LocalDate diaReserva = inicio.toLocalDate();
         List<Reserva> reservasInstructor = reservaRepository.findByInstructorAndEstado(
                 instructorReal, EstadoReserva.ACTIVA);
@@ -119,14 +110,12 @@ public class ReservaService {
             throw new NegocioException("El instructor ya tiene 3 reservas activas el dia " + diaReserva, 400);
         }
 
-        // 6. Validar que no se solape con otra reserva activa del mismo ambiente
         List<Reserva> solapadas = reservaRepository.findSolapadas(ambienteReal.getId(), inicio, fin);
 
         if (solapadas.size() > 0) {
             throw new NegocioException("El ambiente ya tiene una reserva activa en ese horario", 409);
         }
 
-        // Vincular los objetos mapeados completos y guardar la reserva
         reserva.setAmbiente(ambienteReal); 
         reserva.setInstructor(instructorReal);
         reserva.setEstado(EstadoReserva.ACTIVA);
@@ -163,14 +152,11 @@ public class ReservaService {
         return reservaCancelada;
     }
 
-    // 1. Método para listar todas las reservas
     public List<Reserva> obtenerTodas() {
         return reservaRepository.findAll();
     }
 
-    // 2. Método para buscar reservas por el nombre del instructor
     public List<Reserva> obtenerPorInstructor(String nombre) {
-        // Buscamos en el repositorio usando la relación de la entidad Usuario
         return reservaRepository.findByInstructorNombreCompletoContainingIgnoreCase(nombre);
     }
 

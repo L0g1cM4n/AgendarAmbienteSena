@@ -1,4 +1,3 @@
--- Cambia los INSERT INTO por INSERT IGNORE INTO
 INSERT IGNORE INTO usuarios (activo, correo, documento, nombre_completo) VALUES 
 (1, 'santiago@sena.edu.co', '1000111222', 'Santiago Pérez'),
 (1, 'julia@sena.edu.co', '1000333444', 'Julián Flórez'),

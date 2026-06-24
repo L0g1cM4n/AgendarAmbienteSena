@@ -8,9 +8,7 @@ import com.sena.database_connection.model.entities.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    // Busca un usuario por su numero de documento
     Usuario findByDocumento(String documento);
 
-    // Busca un usuario por su correo
     Usuario findByCorreo(String correo);
 }

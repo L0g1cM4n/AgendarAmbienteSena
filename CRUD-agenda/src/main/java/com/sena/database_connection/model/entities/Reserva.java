@@ -36,17 +36,14 @@ public class Reserva {
     @Column(nullable = false)
     private EstadoReserva estado;
 
-    // Relacion con Ambiente
     @ManyToOne
     @JoinColumn(name = "ambiente_id", nullable = false)
     private Ambiente ambiente;
 
-    // CAMBIO PRINCIPAL: ya no es un String, ahora es una relacion real con Usuario
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario instructor;
 
-    // Constructor vacio requerido por JPA
     public Reserva() {
     }
 

@@ -1,23 +1,23 @@
 package com.sena.database_connection.controller;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import com.sena.database_connection.service.AmbienteService;
 import com.sena.database_connection.model.entities.Ambiente;
 import com.sena.database_connection.model.entities.Reserva;
-
-import java.time.LocalDate;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.sena.database_connection.service.AmbienteService;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -43,7 +43,6 @@ public class ReporteController {
             }
 
             double horasReservadas = minutosReservados / 60.0;
-            // El horario institucional consta de 16 horas (06:00 a 22:00)
             double porcentajeOcupacion = (horasReservadas / 16.0) * 100.0;
 
             // Armamos el JSON estructurado para Postman
