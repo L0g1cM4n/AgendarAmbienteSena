@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import com.sena.database_connection.model.entities.Ambiente;
+import com.sena.database_connection.model.entities.Reserva;
 import com.sena.database_connection.service.AmbienteService;
 
 @RestController
@@ -36,5 +37,24 @@ public class AmbienteController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         ambienteService.eliminarLogico(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // 1. Ver las reservas activas de un ambiente en una fecha (?fecha=2026-06-15)
+    @GetMapping("/{id}/reservas")
+    public ResponseEntity<List<Reserva>> verReservasPorFecha(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestParam("fecha") 
+            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fecha) {
+        return ResponseEntity.ok(ambienteService.obtenerReservasPorAmbienteYFecha(id, fecha));
+    }
+
+    // 2. Listar los ambientes libres en un rango de tiempo dado (?inicio=...&fin=...)
+    @GetMapping("/disponibles")
+    public ResponseEntity<List<Ambiente>> listarDisponibles(
+            @org.springframework.web.bind.annotation.RequestParam("inicio") 
+            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime inicio,
+            @org.springframework.web.bind.annotation.RequestParam("fin") 
+            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime fin) {
+        return ResponseEntity.ok(ambienteService.listarDisponibles(inicio, fin));
     }
 }

@@ -25,4 +25,15 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     // Busca reservas activas de un instructor (ahora por entidad Usuario)
     List<Reserva> findByInstructorAndEstado(Usuario instructor, EstadoReserva estado);
+
+    List<Reserva> findByInstructorNombreCompletoContainingIgnoreCase(String nombre);
+
+    // Buscar reservas activas de un ambiente específico en un rango de fecha (para un día completo)
+    @Query("SELECT r FROM Reserva r WHERE r.ambiente.id = :ambienteId AND r.estado = 'ACTIVA' " +
+        "AND r.fechaHoraInicio >= :inicio AND r.fechaHoraInicio <= :fin")
+    List<Reserva> findByAmbienteIdAndFecha(
+        @Param("ambienteId") Long ambienteId, 
+        @Param("inicio") LocalDateTime inicio, 
+        @Param("fin") LocalDateTime fin
+    );
 }

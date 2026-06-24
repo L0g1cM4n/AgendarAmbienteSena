@@ -1,0 +1,243 @@
+{
+  "info": {
+    "_postman_id": "41fb3e0e-dc0e-4984-8fbb-00d8bc94358b",
+    "name": "AgendaSENA - Pruebas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56096658",
+    "_collection_link": "https://go.postman.co/collection/56096658-41fb3e0e-dc0e-4984-8fbb-00d8bc94358b?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "RN1 - Exitoso (Crear Primera Reserva)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 1 },\r\n  \"instructor\": { \"id\": 2 },\r\n  \"numeroAprendices\": 25,\r\n  \"fechaHoraInicio\": \"2026-06-25T08:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-25T11:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN1 - Error (Cruce de Horario)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 1 },\r\n  \"instructor\": { \"id\": 1 },\r\n  \"numeroAprendices\": 20,\r\n  \"fechaHoraInicio\": \"2026-06-25T09:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-25T10:30:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN2 - Exitoso (Capacidad Permitida)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 1 },\r\n  \"instructor\": { \"id\": 2 },\r\n  \"numeroAprendices\": 35,\r\n  \"fechaHoraInicio\": \"2026-06-26T14:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-26T16:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN2 - Error (Capacidad Superada)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 1 },\r\n  \"instructor\": { \"id\": 2 },\r\n  \"numeroAprendices\": 45,\r\n  \"fechaHoraInicio\": \"2026-06-27T14:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-27T16:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN3 - Exitoso (Dentro de Horario)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 2 },\r\n  \"instructor\": { \"id\": 3 },\r\n  \"numeroAprendices\": 15,\r\n  \"fechaHoraInicio\": \"2026-06-25T18:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-25T22:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN3 - Error (Horario Excedido)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 2 },\r\n  \"instructor\": { \"id\": 3 },\r\n  \"numeroAprendices\": 15,\r\n  \"fechaHoraInicio\": \"2026-06-25T20:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-25T23:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN4 - Exitoso (Ambiente Activo)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 2 },\r\n  \"instructor\": { \"id\": 2 },\r\n  \"numeroAprendices\": 10,\r\n  \"fechaHoraInicio\": \"2026-06-28T08:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-28T10:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN4 - Error (Ambiente Inactivo)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 4 },\r\n  \"instructor\": { \"id\": 2 },\r\n  \"numeroAprendices\": 10,\r\n  \"fechaHoraInicio\": \"2026-06-25T10:00:00\",\r\n  \"fechaHoraFin\": \"2026-06-25T12:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

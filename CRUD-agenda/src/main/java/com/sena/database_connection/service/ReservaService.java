@@ -14,6 +14,7 @@ import com.sena.database_connection.model.entities.Ambiente;
 import com.sena.database_connection.model.entities.Reserva;
 import com.sena.database_connection.model.entities.Usuario;
 import com.sena.database_connection.model.enums.EstadoReserva;
+import com.sena.database_connection.repositories.AmbienteRepository;
 import com.sena.database_connection.repositories.ReservaRepository;
 import com.sena.database_connection.repositories.UsuarioRepository;
 
@@ -25,6 +26,9 @@ public class ReservaService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private AmbienteRepository ambienteRepository;
 
     private static final LocalTime HORA_MINIMA = LocalTime.of(6, 0);
     private static final LocalTime HORA_MAXIMA = LocalTime.of(22, 0);
@@ -39,18 +43,23 @@ public class ReservaService {
             throw new NegocioException("La fecha de inicio no puede estar en el pasado", 400);
         }
 
-        // 2. Validar que el ambiente este activo
-        Ambiente ambiente = reserva.getAmbiente();
-        if (ambiente == null) {
+        // 2. Validar que se haya seleccionado un ambiente en la petición
+        if (reserva.getAmbiente() == null || reserva.getAmbiente().getId() == null) {
             throw new NegocioException("Debe seleccionar un ambiente para la reserva", 400);
         }
-        if (ambiente.getActivo() == false) {
+
+        // 🔥 MODIFICACIÓN PRINCIPAL: Traer el ambiente real y completo desde la Base de Datos
+        Ambiente ambienteReal = ambienteRepository.findById(reserva.getAmbiente().getId())
+                .orElseThrow(() -> new NegocioException("El ambiente seleccionado no existe en el sistema", 404));
+
+        // Validar si el ambiente está activo usando el objeto real de la BD
+        if (ambienteReal.getActivo() == false) {
             throw new NegocioException("El ambiente seleccionado no esta activo", 400);
         }
 
-        // 3. Validar que el numero de aprendices no supere la capacidad del ambiente
-        if (reserva.getNumeroAprendices() > ambiente.getCapacidad()) {
-            throw new NegocioException("El numero de aprendices supera la capacidad del ambiente", 400);
+        // 3. Validar capacidad real de la BD vs aprendices que quieren entrar
+        if (reserva.getNumeroAprendices() > ambienteReal.getCapacidad()) {
+            throw new NegocioException("El numero de aprendices supera la capacidad del ambiente (" + ambienteReal.getCapacidad() + ")", 400);
         }
 
         // 4. Validar que la reserva sea el mismo dia y dentro del horario permitido
@@ -77,7 +86,7 @@ public class ReservaService {
             throw new NegocioException("La reserva no puede durar mas de 4 horas", 400);
         }
 
-        // NUEVO: Validar que el instructor exista en la base de datos
+        // Validar que el instructor exista en la base de datos
         Usuario instructor = reserva.getInstructor();
         if (instructor == null || instructor.getId() == null) {
             throw new NegocioException("Debe seleccionar un instructor para la reserva", 400);
@@ -88,7 +97,7 @@ public class ReservaService {
             throw new NegocioException("El instructor no existe en el sistema", 404);
         }
 
-        // NUEVO: Validar que el instructor este activo
+        // Validar que el instructor este activo
         if (instructorReal.isActivo() == false) {
             throw new NegocioException("El instructor no esta activo en el sistema", 400);
         }
@@ -111,18 +120,18 @@ public class ReservaService {
         }
 
         // 6. Validar que no se solape con otra reserva activa del mismo ambiente
-        List<Reserva> solapadas = reservaRepository.findSolapadas(ambiente.getId(), inicio, fin);
+        List<Reserva> solapadas = reservaRepository.findSolapadas(ambienteReal.getId(), inicio, fin);
 
         if (solapadas.size() > 0) {
             throw new NegocioException("El ambiente ya tiene una reserva activa en ese horario", 409);
         }
 
-        // Asignar el instructor real y guardar la reserva
+        // Vincular los objetos mapeados completos y guardar la reserva
+        reserva.setAmbiente(ambienteReal); 
         reserva.setInstructor(instructorReal);
         reserva.setEstado(EstadoReserva.ACTIVA);
-        Reserva reservaGuardada = reservaRepository.save(reserva);
-
-        return reservaGuardada;
+        
+        return reservaRepository.save(reserva);
     }
 
     public Reserva cancelarReserva(Long id) {
@@ -153,4 +162,20 @@ public class ReservaService {
 
         return reservaCancelada;
     }
+
+    // 1. Método para listar todas las reservas
+    public List<Reserva> obtenerTodas() {
+        return reservaRepository.findAll();
+    }
+
+    // 2. Método para buscar reservas por el nombre del instructor
+    public List<Reserva> obtenerPorInstructor(String nombre) {
+        // Buscamos en el repositorio usando la relación de la entidad Usuario
+        return reservaRepository.findByInstructorNombreCompletoContainingIgnoreCase(nombre);
+    }
+
+    public Reserva obtenerPorId(Long id) {
+    return reservaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Reserva no encontrada con el ID: " + id));
+}
 }
