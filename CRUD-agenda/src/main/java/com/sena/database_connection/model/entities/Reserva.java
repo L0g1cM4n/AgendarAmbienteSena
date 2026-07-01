@@ -14,9 +14,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "reservas")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Reserva {
 
     @Id
@@ -43,63 +49,4 @@ public class Reserva {
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario instructor;
-
-    public Reserva() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getFechaHoraInicio() {
-        return fechaHoraInicio;
-    }
-
-    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
-        this.fechaHoraInicio = fechaHoraInicio;
-    }
-
-    public LocalDateTime getFechaHoraFin() {
-        return fechaHoraFin;
-    }
-
-    public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
-        this.fechaHoraFin = fechaHoraFin;
-    }
-
-    public int getNumeroAprendices() {
-        return numeroAprendices;
-    }
-
-    public void setNumeroAprendices(int numeroAprendices) {
-        this.numeroAprendices = numeroAprendices;
-    }
-
-    public EstadoReserva getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoReserva estado) {
-        this.estado = estado;
-    }
-
-    public Ambiente getAmbiente() {
-        return ambiente;
-    }
-
-    public void setAmbiente(Ambiente ambiente) {
-        this.ambiente = ambiente;
-    }
-
-    public Usuario getInstructor() {
-        return instructor;
-    }
-
-    public void setInstructor(Usuario instructor) {
-        this.instructor = instructor;
-    }
 }

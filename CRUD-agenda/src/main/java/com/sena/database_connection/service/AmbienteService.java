@@ -1,7 +1,12 @@
 package com.sena.database_connection.service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +49,25 @@ public void eliminarLogico(Long id) {
         LocalDateTime inicioDia = fecha.atStartOfDay();
         LocalDateTime finDia = fecha.atTime(23, 59, 59);
         return reservaRepository.findByAmbienteIdAndFecha(ambienteId, inicioDia, finDia);
+    }
+
+    public Map.Entry<Ambiente, Double> calcularAmbienteMasUsado(LocalDate fechaFin) {
+        LocalDateTime inicioSemana = fechaFin.minusDays(6).atStartOfDay();
+        LocalDateTime finSemana = fechaFin.atTime(23, 59, 59);
+
+        List<Reserva> reservasSemana = reservaRepository.findActivasEnRango(inicioSemana, finSemana);
+
+        Map<Ambiente, Double> horasPorAmbiente = reservasSemana.stream()
+            .collect(Collectors.groupingBy(
+                Reserva::getAmbiente,
+                Collectors.summingDouble(r ->
+                    Duration.between(r.getFechaHoraInicio(), r.getFechaHoraFin()).toMinutes() / 60.0
+                )
+            ));
+
+        return horasPorAmbiente.entrySet().stream()
+            .max(Comparator.comparingDouble(Map.Entry::getValue))
+            .orElseThrow(() -> new NegocioException("No hay reservas en la semana consultada", 404));
     }
 
     public List<Ambiente> listarDisponibles(LocalDateTime inicio, LocalDateTime fin) {

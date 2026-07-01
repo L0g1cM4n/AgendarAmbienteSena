@@ -69,7 +69,7 @@ public class UsuarioService {
             throw new NegocioException("No se encontro un usuario con id " + id, 404);
         }
 
-        if (usuario.isActivo() == false) {
+        if (usuario.getActivo() == false) {
             throw new NegocioException("El usuario ya esta desactivado", 400);
         }
 

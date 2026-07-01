@@ -238,6 +238,221 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "RN5 - Error (Limite por Instructor)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 1 },\r\n  \"instructor\": { \"id\": 1 },\r\n  \"numeroAprendices\": 5,\r\n  \"fechaHoraInicio\": \"2026-07-01T17:00:00\",\r\n  \"fechaHoraFin\": \"2026-07-01T18:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN6 - Exitoso (Cancelar Reserva)",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/reservas/8/cancelar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas",
+            "8",
+            "cancelar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN6 - Error (Reserva ya Cancelada)",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/reservas/8/cancelar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas",
+            "8",
+            "cancelar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RN7: Reserva en el Pasado",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"ambiente\": { \"id\": 3 },\r\n  \"instructor\": { \"id\": 2 },\r\n  \"numeroAprendices\": 10,\r\n  \"fechaHoraInicio\": \"2024-01-01T08:00:00\",\r\n  \"fechaHoraFin\": \"2024-01-01T10:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/reservas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reservas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Endpoint - Ambientes Disponibles",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/ambientes/disponibles?inicio=2026-07-01T16:00:00&fin=2026-07-01T18:00:00",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "ambientes",
+            "disponibles"
+          ],
+          "query": [
+            {
+              "key": "inicio",
+              "value": "2026-07-01T16:00:00"
+            },
+            {
+              "key": "fin",
+              "value": "2026-07-01T18:00:00"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Endpoint - Reservas de Ambiente por Fecha",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/ambientes/1/reservas?fecha=2026-07-01",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "ambientes",
+            "1",
+            "reservas"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "2026-07-01"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Endpoint - Reporte de Ocupacion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/reportes/ocupacion?fecha=2026-07-01",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reportes",
+            "ocupacion"
+          ],
+          "query": [
+            {
+              "key": "fecha",
+              "value": "2026-07-01"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Endpoint - Ambiente Mas Usado de la Semana",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/reportes/ambiente-mas-usado?semana=2026-07-01",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "reportes",
+            "ambiente-mas-usado"
+          ],
+          "query": [
+            {
+              "key": "semana",
+              "value": "2026-07-01"
+            }
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }

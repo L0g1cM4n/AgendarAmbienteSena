@@ -34,4 +34,11 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
         @Param("inicio") LocalDateTime inicio, 
         @Param("fin") LocalDateTime fin
     );
+
+    @Query("SELECT r FROM Reserva r WHERE r.estado = 'ACTIVA' " +
+        "AND r.fechaHoraInicio >= :inicio AND r.fechaHoraInicio < :fin")
+    List<Reserva> findActivasEnRango(
+        @Param("inicio") LocalDateTime inicio,
+        @Param("fin") LocalDateTime fin
+    );
 }

@@ -90,7 +90,7 @@ public class ReservaService {
             throw new NegocioException("El instructor no existe en el sistema", 404);
         }
 
-        if (instructorReal.isActivo() == false) {
+        if (instructorReal.getActivo() == false) {
             throw new NegocioException("El instructor no esta activo en el sistema", 400);
         }
 
@@ -161,7 +161,7 @@ public class ReservaService {
     }
 
     public Reserva obtenerPorId(Long id) {
-    return reservaRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Reserva no encontrada con el ID: " + id));
-}
+        return reservaRepository.findById(id)
+            .orElseThrow(() -> new NegocioException("Reserva no encontrada con el ID: " + id, 404));
+    }
 }

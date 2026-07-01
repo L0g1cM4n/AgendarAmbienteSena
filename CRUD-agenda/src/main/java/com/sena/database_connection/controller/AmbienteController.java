@@ -1,8 +1,11 @@
 package com.sena.database_connection.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,11 +14,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sena.database_connection.model.dto.AmbienteRequestDTO;
+import com.sena.database_connection.model.dto.AmbienteResponseDTO;
+import com.sena.database_connection.model.dto.ReservaResponseDTO;
 import com.sena.database_connection.model.entities.Ambiente;
-import com.sena.database_connection.model.entities.Reserva;
 import com.sena.database_connection.service.AmbienteService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/ambientes")
@@ -25,13 +33,22 @@ public class AmbienteController {
     private AmbienteService ambienteService;
 
     @GetMapping
-    public ResponseEntity<List<Ambiente>> listar() { 
-        return ResponseEntity.ok(ambienteService.listarTodos()); 
+    public ResponseEntity<List<AmbienteResponseDTO>> listar() {
+        List<Ambiente> ambientes = ambienteService.listarTodos();
+        List<AmbienteResponseDTO> dto = ambientes.stream()
+            .map(AmbienteResponseDTO::fromEntity)
+            .toList();
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<Ambiente> crear(@RequestBody Ambiente ambiente) {
-        return new ResponseEntity<>(ambienteService.guardar(ambiente), HttpStatus.CREATED);
+    public ResponseEntity<AmbienteResponseDTO> crear(@Valid @RequestBody AmbienteRequestDTO request) {
+        Ambiente ambiente = new Ambiente();
+        ambiente.setNombre(request.getNombre());
+        ambiente.setTipo(request.getTipo());
+        ambiente.setCapacidad(request.getCapacidad());
+        Ambiente guardado = ambienteService.guardar(ambiente);
+        return new ResponseEntity<>(AmbienteResponseDTO.fromEntity(guardado), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
@@ -40,22 +57,25 @@ public class AmbienteController {
         return ResponseEntity.noContent().build();
     }
 
-    // 1. Ver las reservas activas de un ambiente en una fecha (?fecha=2026-06-15)
     @GetMapping("/{id}/reservas")
-    public ResponseEntity<List<Reserva>> verReservasPorFecha(
+    public ResponseEntity<List<ReservaResponseDTO>> verReservasPorFecha(
             @PathVariable Long id,
-            @org.springframework.web.bind.annotation.RequestParam("fecha") 
-            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fecha) {
-        return ResponseEntity.ok(ambienteService.obtenerReservasPorAmbienteYFecha(id, fecha));
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        List<ReservaResponseDTO> reservas = ambienteService.obtenerReservasPorAmbienteYFecha(id, fecha)
+            .stream()
+            .map(ReservaResponseDTO::fromEntity)
+            .toList();
+        return ResponseEntity.ok(reservas);
     }
 
-    // 2. Listar los ambientes libres en un rango de tiempo dado (?inicio=...&fin=...)
     @GetMapping("/disponibles")
-    public ResponseEntity<List<Ambiente>> listarDisponibles(
-            @org.springframework.web.bind.annotation.RequestParam("inicio") 
-            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime inicio,
-            @org.springframework.web.bind.annotation.RequestParam("fin") 
-            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime fin) {
-        return ResponseEntity.ok(ambienteService.listarDisponibles(inicio, fin));
+    public ResponseEntity<List<AmbienteResponseDTO>> listarDisponibles(
+            @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+        List<AmbienteResponseDTO> disponibles = ambienteService.listarDisponibles(inicio, fin)
+            .stream()
+            .map(AmbienteResponseDTO::fromEntity)
+            .toList();
+        return ResponseEntity.ok(disponibles);
     }
 }
