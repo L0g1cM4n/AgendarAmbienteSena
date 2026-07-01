@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +19,11 @@ import com.sena.database_connection.repositories.AmbienteRepository;
 import com.sena.database_connection.repositories.ReservaRepository;
 
 @Service
+@RequiredArgsConstructor
 public class AmbienteService {
 
-    @Autowired
-    private AmbienteRepository ambienteRepository;
-
-    @Autowired
-    private ReservaRepository reservaRepository;
+    private final AmbienteRepository ambienteRepository;
+    private final ReservaRepository reservaRepository;
 
     public List<Ambiente> listarTodos() {
         return ambienteRepository.findAll();

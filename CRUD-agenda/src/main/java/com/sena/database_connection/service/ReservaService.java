@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.sena.database_connection.exception.NegocioException;
@@ -19,16 +19,12 @@ import com.sena.database_connection.repositories.ReservaRepository;
 import com.sena.database_connection.repositories.UsuarioRepository;
 
 @Service
+@RequiredArgsConstructor
 public class ReservaService {
 
-    @Autowired
-    private ReservaRepository reservaRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private AmbienteRepository ambienteRepository;
+    private final ReservaRepository reservaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final AmbienteRepository ambienteRepository;
 
     private static final LocalTime HORA_MINIMA = LocalTime.of(6, 0);
     private static final LocalTime HORA_MAXIMA = LocalTime.of(22, 0);

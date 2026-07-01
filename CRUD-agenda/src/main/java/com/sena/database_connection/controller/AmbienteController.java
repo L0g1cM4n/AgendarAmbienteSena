@@ -4,7 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +28,10 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/ambientes")
+@RequiredArgsConstructor
 public class AmbienteController {
 
-    @Autowired
-    private AmbienteService ambienteService;
+    private final AmbienteService ambienteService;
 
     @GetMapping
     public ResponseEntity<List<AmbienteResponseDTO>> listar() {

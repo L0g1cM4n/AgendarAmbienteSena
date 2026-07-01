@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +22,10 @@ import com.sena.database_connection.service.AmbienteService;
 
 @RestController
 @RequestMapping("/api/reportes")
+@RequiredArgsConstructor
 public class ReporteController {
 
-    @Autowired
-    private AmbienteService ambienteService;
+    private final AmbienteService ambienteService;
 
     @GetMapping("/ocupacion")
     public ResponseEntity<List<ReporteOcupacionDTO>> obtenerReporteOcupacion(

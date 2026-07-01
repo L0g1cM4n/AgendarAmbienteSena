@@ -2,7 +2,7 @@ package com.sena.database_connection.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.sena.database_connection.exception.NegocioException;
@@ -10,10 +10,10 @@ import com.sena.database_connection.model.entities.Usuario;
 import com.sena.database_connection.repositories.UsuarioRepository;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
     // Listar todos los usuarios
     public List<Usuario> listarTodos() {
